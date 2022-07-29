@@ -9,7 +9,7 @@ import org.junit.Test;
 import readProperties.ConfigProvider;
 import static django_helpdesk_demo.helpers.StringModifier.getUniqueString;
 
-public class helpDeskTest extends SeleniumBaseTest {
+public class TicketCreateByNoAuthorizedUserTest extends SeleniumBaseTest {
 
     @Test
     public void checkTicket(){
