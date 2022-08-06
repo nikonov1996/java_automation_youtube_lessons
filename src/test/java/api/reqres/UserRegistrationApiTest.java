@@ -1,46 +1,84 @@
 package api.reqres;
 
-import api.reqres.pojo.UserFailRegisterData;
-import api.reqres.pojo.UserRegisterRequestData;
-import api.reqres.pojo.UserSuccessRegisterData;
+import api.reqres_pojo.spec.Specification;
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
 
-public class UserRegistrationApiTest {
-    private final static String BASE_URL = "https://reqres.in/";
-
+public class UserRegistrationApiTest extends BaseApiTest{
     @Test
-    public void checkUserSuccessRegistrationTest(){
-        Specification.installSpecification(Specification.requestSpec(BASE_URL),Specification.responseSpecSuccess());
-        UserSuccessRegisterData expectedRegisterResponse = new UserSuccessRegisterData(4,"QpwL5tke4Pnpja7X4");
-        UserRegisterRequestData userRegisterRequestData = new UserRegisterRequestData("eve.holt@reqres.in", "pistol");
-
-        UserSuccessRegisterData actualRegisterResponse = given()
-                .body(userRegisterRequestData)
+    public void checkUserRegisterSuccessTest(){
+        Specification.installSpecification(Specification.requestSpec(config.getString("base_url")),Specification.responseSpecSuccess());
+        Map<String,String> user = new HashMap<>();
+        user.put("email","eve.holt@reqres.in");
+        user.put("password", "pistol");
+        // Вариант без Response
+        given()
+                .body(user)
                 .when()
                 .post("api/register")
                 .then().log().all()
-                .extract().as(UserSuccessRegisterData.class);
-
-        Assert.assertNotNull(actualRegisterResponse);
-        Assert.assertEquals(expectedRegisterResponse,actualRegisterResponse);
+                .body("id",equalTo(4))
+                .body("token",equalTo("QpwL5tke4Pnpja7X4"));
     }
 
     @Test
-    public void checkUserUnsuccessRegistrationTest(){
-        Specification.installSpecification(Specification.requestSpec(BASE_URL),Specification.responseSpec400());
-        UserRegisterRequestData userRegisterRequestData = new UserRegisterRequestData("sydney@fife","");
-        UserFailRegisterData expectedFailResponse = new UserFailRegisterData("Missing password");
-
-        UserFailRegisterData actualFailResponse = given()
-                .body(userRegisterRequestData)
+    public void checkUserRegisterSuccessTest1(){
+        Specification.installSpecification(Specification.requestSpec(config.getString("base_url")),Specification.responseSpecSuccess());
+        Map<String,String> user = new HashMap<>();
+        user.put("email","eve.holt@reqres.in");
+        user.put("password", "pistol");
+        // Вариант с использованием Response
+        Response response = given()
+                .body(user)
                 .when()
                 .post("api/register")
                 .then().log().all()
-                .extract().as(UserFailRegisterData.class);
+                .body("id",equalTo(4))
+                .body("token",equalTo("QpwL5tke4Pnpja7X4"))
+                .extract().response();
+        JsonPath actualJson = response.jsonPath();
+        int actualId = actualJson.get("id");
+        String actualToken = actualJson.get("token");
+        Assert.assertEquals(4, actualId);
+        Assert.assertEquals("QpwL5tke4Pnpja7X4", actualToken);
+    }
 
-        Assert.assertEquals(expectedFailResponse,actualFailResponse);
+    @Test
+    public void checkUserRegisterUnsuccessTest(){
+        Specification.installSpecification(Specification.requestSpec(config.getString("base_url")),Specification.responseSpec400());
+        Map<String,String> user = new HashMap<>();
+        user.put("email","sydney@fife");
+        given()
+                .body(user)
+                .when()
+                .post("api/register")
+                .then().log().all()
+                .body("error",equalTo("Missing password"));
+    }
+
+    @Test
+    public void checkUserRegisterUnsuccessTest1(){
+        Specification.installSpecification(Specification.requestSpec(config.getString("base_url")),Specification.responseSpec400());
+        Map<String,String> user = new HashMap<>();
+        user.put("email","sydney@fife");
+
+        // Вариант с использованием Response
+        Response response = given()
+                .body(user)
+                .when()
+                .post("api/register")
+                .then().log().all()
+                .extract().response();
+        JsonPath actualJson = response.jsonPath();
+        String actualErrorValue = actualJson.get("error");
+        Assert.assertEquals("Missing password" , actualErrorValue);
     }
 }

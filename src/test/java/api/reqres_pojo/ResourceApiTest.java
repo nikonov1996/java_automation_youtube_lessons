@@ -1,10 +1,10 @@
-package api.reqres;
+package api.reqres_pojo;
 
-import api.reqres.pojo.ResourceData;
+import api.reqres_pojo.pojo.ResourceData;
+import api.reqres_pojo.spec.Specification;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 

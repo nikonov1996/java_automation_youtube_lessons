@@ -1,6 +1,7 @@
-package api.reqres;
+package api.reqres_pojo;
 
-import api.reqres.pojo.UserData;
+import api.reqres_pojo.pojo.UserData;
+import api.reqres_pojo.spec.Specification;
 import org.junit.Assert;
 import org.junit.Test;
 

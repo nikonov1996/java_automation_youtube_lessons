@@ -1,43 +1,45 @@
 package api.reqres;
 
-import api.reqres.pojo.UserData;
+import api.reqres.spec.Specification;
 import io.restassured.http.ContentType;
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
 import org.junit.Assert;
 import org.junit.Test;
+import org.openqa.selenium.json.Json;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 
-public class UsersApiTest {
+public class UsersApiTest extends BaseApiTest{
 
-    private final static String BASE_URL = "https://reqres.in/";
-
-    // Вариант 1 : без Specifications
     @Test
     public void checkAvatarFileNameTest(){
-        List<UserData> users = given()
+        Specification.installSpecification(Specification.requestSpec(config.getString("base_url")),Specification.responseSpecSuccess());
+        Response response = given()
                 .when()
-                .contentType(ContentType.JSON)
-                .get(BASE_URL + "api/users?page=2")
+                .get("api/users?page=2")
                 .then().log().all()
-                .extract().body().jsonPath().getList("data", UserData.class);
+                .body("page",equalTo(2))
+                .body("data.id",notNullValue())
+                .body("data.email",notNullValue())
+                .body("data.first_name",notNullValue())
+                .body("data.last_name",notNullValue())
+                .body("data.avatar",notNullValue())
+                .extract().response();
+        JsonPath jsonPath = response.jsonPath();
+        List<String> actualEmails = jsonPath.get("data.email");
+        List<Integer> actualIds = jsonPath.get("data.id");
+        List<String> actualAvatars = jsonPath.get("data.avatar");
 
-        // Перебор по каждому пользователю
-        users.forEach(x->Assert.assertTrue(x.getAvatar().contains(x.getId().toString())));
-
-        // Проверяем что все email заканчиваются корректно
-        Assert.assertTrue(users.stream().allMatch(x->x.getEmail().endsWith("@reqres.in")));
-
-        // Получаем списки с ссылкой на изображение и с айдишниками
-        List<String> avatars = users.stream().map(UserData::getAvatar).collect(Collectors.toList());
-        List<String> ids = users.stream().map(x->x.getId().toString()).collect(Collectors.toList());
-
-        // В цикле проверяем что в ссылке на изображение присутствует коректный айдишник пользователя
-        for (int i = 0; i < avatars.size(); i++) {
-            Assert.assertTrue(avatars.get(i).contains(ids.get(i)));
+        for (int i = 0; i < actualIds.size(); i++) {
+            Assert.assertTrue(actualAvatars.get(i).contains(actualIds.get(i).toString()));
         }
+
+        Assert.assertTrue(actualEmails.stream().allMatch(x->x.endsWith("@reqres.in")));
 
     }
 

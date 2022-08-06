@@ -1,6 +1,4 @@
-package api.reqres.pojo;
-
-import hh.Model.Resume;
+package api.reqres_pojo.pojo;
 
 import java.util.Objects;
 

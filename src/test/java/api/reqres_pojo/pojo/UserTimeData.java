@@ -1,4 +1,4 @@
-package api.reqres.pojo;
+package api.reqres_pojo.pojo;
 
 public class UserTimeData {
     private String name;

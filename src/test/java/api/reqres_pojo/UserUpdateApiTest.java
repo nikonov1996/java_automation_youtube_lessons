@@ -1,7 +1,8 @@
-package api.reqres;
+package api.reqres_pojo;
 
-import api.reqres.pojo.UserTimeData;
-import api.reqres.pojo.UserTimeResponseData;
+import api.reqres_pojo.pojo.UserTimeData;
+import api.reqres_pojo.pojo.UserTimeResponseData;
+import api.reqres_pojo.spec.Specification;
 import org.junit.Assert;
 import org.junit.Test;
 

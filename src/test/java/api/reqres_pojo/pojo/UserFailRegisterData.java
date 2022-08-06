@@ -1,4 +1,4 @@
-package api.reqres.pojo;
+package api.reqres_pojo.pojo;
 
 import java.util.Objects;
 
